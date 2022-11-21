@@ -15,38 +15,37 @@ services:
       test: "exit 0"
     volumes:
       - openmrs-referenceapplication-mysql-data:/var/lib/mysql
-#  webserver:
- #   image: nginx:mainline-alpine
-  #  container_name: webserver
-   # restart: unless-stopped
-   # ports:
-    #  - "80:80"
-    #volumes:
-#      - web-root:/var/www/openmrs/working_openmrs
-     # - ./nginx-conf:/etc/nginx/conf.d
-#      - certbot-etc:/etc/letsencrypt
- #     - certbot-var:/var/lib/letsencrypt
-   # networks:
-    #  - app-network
-  #certbot:
-   # image: certbot/certbot
-   # container_name: certbot
-  #  volumes:
- #     - certbot-etc:/etc/letsencrypt
-#      - certbot-var:/var/lib/letsencrypt
- #     - web-root:/var/www/openmrs/working_openmrs
-   # depends_on:
-    #  - webserver
-   # command: certonly --webroot --webroot-path=/var/www/openmrs/working_openmrs --email desiremukunzi@gmail.com --agree-tos --no-eff-email --staging -d patholar.com
-  openmrs-referenceapplication:
+  webserver:
+    image: nginx:mainline-alpine
+    container_name: webserver
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - web-root:/var/www/openmrs/working_openmrs
+      - ./nginx-conf:/etc/nginx/conf.d
+      - certbot-etc:/etc/letsencrypt
+      - certbot-var:/var/lib/letsencrypt
+    networks:
+      - app-network
+certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - certbot-etc:/etc/letsencrypt
+      - certbot-var:/var/lib/letsencrypt
+      - web-root:/var/www/html
+    depends_on:
+      - webserver
+    command: certonly --webroot --webroot-path=/var/www/openmrs/working_openmrs --email desiremukunzi@gmail.com --agree-tos --no-eff-email --staging -d patholar.com 
+ openmrs-referenceapplication:
     restart: "always"
     image: openmrs/openmrs-reference-application-distro:qa
     depends_on:
       - openmrs-referenceapplication-mysql
     ports:
-      - "80:8080"
+      - "8080:8080"
       - "443:8080"
- #     - "80:80"
     environment:
       DB_DATABASE: ${MYSQL_DB:-openmrs}
       DB_HOST: openmrs-referenceapplication-mysql
@@ -56,7 +55,7 @@ services:
       DB_AUTO_UPDATE: 'true'
       MODULE_WEB_ADMIN: 'true'
     healthcheck:
-      test: ["CMD", "curl", "-f", "https://localhost:8080/openmrs/"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/openmrs/"]
       timeout: 20s
     volumes:
       - openmrs-referenceapplication-data:/usr/local/tomcat/.OpenMRS/
@@ -65,14 +64,3 @@ services:
 volumes:
    openmrs-referenceapplication-mysql-data:
    openmrs-referenceapplication-data:
-   #certbot-etc:
-  # certbot-var:
-  # web-root:
-    #driver: local
-   # driver_opts:
-   #   type: none
-  #    device: /var/www/openmrs/working_openmrs/dockerOpen/none
-   #   o: bind
-#networks:
- # app-network:
-  #  driver: bridge
