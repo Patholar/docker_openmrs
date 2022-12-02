@@ -44,7 +44,7 @@ services:
     depends_on:
       - openmrs-referenceapplication-mysql
     ports:
-      - "80:8080"
+      - "8080:8080"
       - "443:8080"
  #     - "80:80"
     environment:
@@ -56,7 +56,7 @@ services:
       DB_AUTO_UPDATE: 'true'
       MODULE_WEB_ADMIN: 'true'
     healthcheck:
-      test: ["CMD", "curl", "-f", "https://localhost:8080/openmrs/"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/openmrs/"]
       timeout: 20s
     volumes:
       - openmrs-referenceapplication-data:/usr/local/tomcat/.OpenMRS/
